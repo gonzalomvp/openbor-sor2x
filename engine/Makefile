@@ -187,16 +187,20 @@ TARGET_FINAL    = $(VERSION_NAME)
 TARGET_PLATFORM = PANDORA
 BUILD_LINUX     = 1
 BUILD_SDL       = 1
+BUILD_GLES      = 1
+BUILD_OPENGL    = 1
+BUILD_LOADGL    = 1
+BUILD_WEBM      = 1
 BUILD_GFX       = 1
 BUILD_PTHREAD   = 1
 BUILD_SDL_IO    = 1
 BUILD_TREMOR    = 1
 BUILDING        = 1
-CC  	        = $(PNDDEV)/bin/arm-none-linux-gnueabi-gcc
+CC  	        = gcc
 INCLUDES        = $(PNDDEV)/include \
                   $(PNDDEV)/include/SDL
 OBJTYPE         = elf
-LIBRARIES       = $(PNDDEV)/lib
+LIBRARIES       = .
 ifeq ($(BUILD_PANDORA), 0)
 BUILD_DEBUG     = 1
 endif
@@ -247,7 +251,7 @@ ifdef BUILD_DARWIN
 STRIP           = $(PREFIX)strip $(TARGET) -o $(TARGET_FINAL)
 endif
 ifdef BUILD_PANDORA
-STRIP 	        = $(PNDDEV)/bin/arm-none-linux-gnueabi-strip $(TARGET) -o $(TARGET_FINAL)
+STRIP 	        = strip $(TARGET) -o $(TARGET_FINAL)
 endif
 ifdef BUILD_WII
 STRIP           = elf2dol $< $@
@@ -493,6 +497,7 @@ OBJS            = $(MAIN)                                                       
 
 CFLAGS 	       += $(addprefix -I", $(addsuffix ", $(INCS))) $(ARCHFLAGS) -D$(TARGET_PLATFORM)
 CFLAGS 	       += -g -Wall -Werror -fsigned-char -std=gnu99
+CFLAGS 	       += -marm -mfloat-abi=hard -fomit-frame-pointer -ffast-math -O2
 
 
 ifndef BUILD_DARWIN
@@ -617,9 +622,7 @@ ifdef BUILD_SDL
 ifeq ($(findstring DGE, $(SDKPATH)), DGE)
 LIBS           += -lSDL -lSDL_gfx -lts #Kratus (29-04-21) Reversed the FPS limit to reduce CPU usage
 else
-COMMA		=,
-RPATH_LIBS	= $(addprefix -Wl$(COMMA)-rpath$(COMMA),"$(LIBRARIES)")
-LIBS	       += $(RPATH_LIBS) -lSDL2 -lSDL2_gfx #Kratus (29-04-21) Reversed the FPS limit to reduce CPU usage
+LIBS           += -Wl,-rpath,$(LIBRARIES) -lSDL2 -lSDL2_gfx -lGL
 
 ifdef CROSSCOMPILE_LINUX_WIN
 LIBS	       += -lsetupapi
