@@ -764,7 +764,7 @@ void menu(char *path)
 		//getAllPreviews();
 		packfile_music_read(filelist, dListTotal);
 		sound_init(12);
-		sound_start_playback();
+		sound_start_playback(savedata.soundbits, savedata.soundrate);
 
 		pControl = ControlMenu;
 		drawMenu();

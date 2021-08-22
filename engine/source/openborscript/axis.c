@@ -786,7 +786,7 @@ HRESULT openbor_set_axis_principal_float_property(ScriptVariant **varlist, Scrip
 
         case _AXIS_PRINCIPAL_Y:
 
-            handle->y = temp_double;
+            handle->x = temp_double;
 
             break;
 
@@ -881,7 +881,7 @@ HRESULT openbor_set_axis_principal_int_property(ScriptVariant **varlist, ScriptV
 
         case _AXIS_PRINCIPAL_Y:
 
-            handle->y = temp_int;
+            handle->x = temp_int;
 
             break;
 

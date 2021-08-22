@@ -543,7 +543,7 @@ static void mixaudio(unsigned int todo)
                 sptr16 = soundcache[snum].sample.sampleptr;
                 for(i = 0; i < (int)todo;)
                 {
-                    lmusic = rmusic = (int)(short)SwapLSB16(sptr16[FIX_TO_INT(fp_pos)]);
+                    lmusic = rmusic = sptr16[FIX_TO_INT(fp_pos)];
                     mixbuf[i++] += (lmusic * lvolume / MAXVOLUME);
                     if(vchannel[chan].channels == SOUND_MONO)
                     {
@@ -1568,7 +1568,7 @@ void sound_stop_playback()
     mixing_active = 0;
 }
 
-int sound_start_playback()
+int sound_start_playback(int bits, int frequency)
 {
     int i;
 
@@ -1579,8 +1579,21 @@ int sound_start_playback()
 
     sound_stop_playback();
 
-    playbits = 16;
-    playfrequency = 44100;
+    if(bits != 8 && bits != 16)
+    {
+        return 0;
+    }
+
+#if WIN || LINUX || DARWIN || SYMBIAN
+    //
+#else
+    // Most consoles support natively 16/44100
+    bits = 16;
+    frequency = 44100;
+#endif
+
+    playbits = bits;
+    playfrequency = frequency;
 
     for(i = 0; i < max_channels; i++)
     {

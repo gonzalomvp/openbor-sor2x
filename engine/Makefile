@@ -55,10 +55,8 @@ BUILDING        = 1
 YASM 	        = yasm$(EXTENSION)
 CC              = $(WINDEV)/$(PREFIX)gcc$(EXTENSION)
 INCLUDES        = $(SDKPATH)/include \
-                  $(SDKPATH)/include/SDL2 \
-		  $(EXTRA_INCLUDES)
-LIBRARIES       = $(SDKPATH)/lib \
-		  $(EXTRA_LIBRARIES)
+                  $(SDKPATH)/include/SDL2
+LIBRARIES       = $(SDKPATH)/lib
 ARCHFLAGS       = -m32
 ifeq ($(findstring 86, $(TARGET_ARCH)), 86)
 BUILD_MMX       = 1
@@ -103,52 +101,6 @@ BUILD_DEBUG     = 1
 endif
 endif
 
-ifdef BUILD_LINUX_LE_x86_64
-TARGET 	        = $(VERSION_NAME).elf
-TARGET_FINAL    = $(VERSION_NAME)
-TARGET_PLATFORM = LINUX
-BUILD_SDL       = 1
-BUILD_GFX       = 1
-BUILD_PTHREAD   = 1
-BUILD_SDL_IO    = 1
-BUILD_OPENGL    = 1
-BUILD_LOADGL    = 1
-BUILD_VORBIS    = 1
-BUILD_WEBM      = 1
-BUILDING        = 1
-YASM 	          = nasm
-OBJTYPE         = elf
-INCLUDES        = $(SDKPATH)/usr/include \
-                  $(SDKPATH)/usr/include/SDL2
-TARGET_ARCH     = amd64
-BUILD_AMD64     = 1
-ARCHFLAGS       = -m64
-LIBRARIES       = $(SDKPATH)/usr/lib
-CFLAGS          += -DAMD64
-# Workaround for GCC 9
-CFLAGS          += -Wno-error=format-overflow -Wno-error=stringop-truncation -Wno-error=stringop-overflow
-endif
-
-ifdef BUILD_LINUX_LE_arm
-TARGET 	        = $(VERSION_NAME).elf
-TARGET_FINAL    = $(VERSION_NAME)
-TARGET_PLATFORM = LINUX
-BUILD_LINUX     = 1
-BUILD_SDL       = 1
-BUILD_GFX       = 1
-BUILD_PTHREAD   = 1
-BUILD_SDL_IO    = 1
-BUILD_VORBIS    = 1
-BUILD_WEBM      = 1
-BUILDING        = 1
-INCLUDES        = $(SDKPATH)/usr/include \
-                  $(SDKPATH)/usr/include/SDL2
-OBJTYPE         = elf
-LIBRARIES       = $(SDKPATH)/usr/lib
-# Workaround for GCC 9
-CFLAGS          += -Wno-error=format-overflow -Wno-error=stringop-truncation -Wno-error=implicit-function-declaration -Wno-error=unused-variable -Wno-error=unused-label -Wno-error=stringop-overflow
-endif
-
 ifdef BUILD_DARWIN
 TARGET          = $(VERSION_NAME).elf
 TARGET_FINAL    = $(VERSION_NAME)
@@ -187,20 +139,16 @@ TARGET_FINAL    = $(VERSION_NAME)
 TARGET_PLATFORM = PANDORA
 BUILD_LINUX     = 1
 BUILD_SDL       = 1
-BUILD_GLES      = 1
-BUILD_OPENGL    = 1
-BUILD_LOADGL    = 1
-BUILD_WEBM      = 1
 BUILD_GFX       = 1
 BUILD_PTHREAD   = 1
 BUILD_SDL_IO    = 1
 BUILD_TREMOR    = 1
 BUILDING        = 1
-CC  	        = gcc
+CC  	        = $(PNDDEV)/bin/arm-none-linux-gnueabi-gcc
 INCLUDES        = $(PNDDEV)/include \
                   $(PNDDEV)/include/SDL
 OBJTYPE         = elf
-LIBRARIES       = .
+LIBRARIES       = $(PNDDEV)/lib
 ifeq ($(BUILD_PANDORA), 0)
 BUILD_DEBUG     = 1
 endif
@@ -251,7 +199,7 @@ ifdef BUILD_DARWIN
 STRIP           = $(PREFIX)strip $(TARGET) -o $(TARGET_FINAL)
 endif
 ifdef BUILD_PANDORA
-STRIP 	        = strip $(TARGET) -o $(TARGET_FINAL)
+STRIP 	        = $(PNDDEV)/bin/arm-none-linux-gnueabi-strip $(TARGET) -o $(TARGET_FINAL)
 endif
 ifdef BUILD_WII
 STRIP           = elf2dol $< $@
@@ -375,17 +323,16 @@ SCRIPT_BUILTINS = source/openborscript/commands.o                               
 				  source/openborscript/animation.o                                                  \
 				  source/openborscript/axis.o                                           			\
 				  source/openborscript/binding.o                                           			\
-				  source/openborscript/drawmethod.o                                           		\
                   source/openborscript/collision_attack.o                                           \
                   source/openborscript/collision_body.o                                             \
 				  source/openborscript/collision_entity.o                                           \
                   source/openborscript/constants.o                                                  \
+                  source/openborscript/energy_status.o                                             	\
                   source/openborscript/entity.o                                                   	\
                   source/openborscript/index.o                                                      \
                   source/openborscript/layer.o                                                      \
                   source/openborscript/level.o                                                      \
                   source/openborscript/math.o                                                       \
-				  source/openborscript/recursive_damage.o											\
                   source/openborscript/string.o
 RAM             = source/ramlib/ram.o
 RAND	        = source/randlib/rand32.o
@@ -497,7 +444,6 @@ OBJS            = $(MAIN)                                                       
 
 CFLAGS 	       += $(addprefix -I", $(addsuffix ", $(INCS))) $(ARCHFLAGS) -D$(TARGET_PLATFORM)
 CFLAGS 	       += -g -Wall -Werror -fsigned-char -std=gnu99
-CFLAGS 	       += -marm -mfloat-abi=hard -fomit-frame-pointer -ffast-math -O2
 
 
 ifndef BUILD_DARWIN
@@ -542,8 +488,6 @@ endif
 
 ifdef BUILD_WII
 CFLAGS 	       += -DCACHE_BACKGROUNDS -DREVERSE_COLOR -D__ppc__ $(MACHDEP) -Wl,-Map,$(TARGET_MAP),-wrap,wiiuse_register
-# This allows to compile with DevkitPPC r29 and above.
-CFLAGS 	       += -U__INT32_TYPE__ -U __UINT32_TYPE__ -D__INT32_TYPE__=int
 endif
 
 
@@ -620,14 +564,9 @@ endif
 
 ifdef BUILD_SDL
 ifeq ($(findstring DGE, $(SDKPATH)), DGE)
-LIBS           += -lSDL -lSDL_gfx -lts #Kratus (29-04-21) Reversed the FPS limit to reduce CPU usage
+LIBS           += -lSDL -lSDL_gfx -lts
 else
-LIBS           += -Wl,-rpath,$(LIBRARIES) -lSDL2 -lSDL2_gfx -lGL
-
-ifdef CROSSCOMPILE_LINUX_WIN
-LIBS	       += -lsetupapi
-endif
-
+LIBS           += -Wl,-rpath,$(LIBRARIES) -lSDL2 -lSDL2_gfx
 endif
 endif
 
@@ -671,9 +610,6 @@ endif
 
 ifdef BUILD_WEBM
 LIBS           += -lvpx
-ifdef CROSSCOMPILE_LINUX_WIN
-LIBS	       += -lpthread
-endif
 endif
 
 
@@ -810,7 +746,7 @@ ifndef BUILD_PSP
 clean-all: clean-releases clean
 
 clean-releases:
-	@if [ -d ./releases ]; then rm -rf ./releases; fi
+	@rm -rf releases/*
 
 clean:
 	@echo

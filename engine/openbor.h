@@ -87,9 +87,10 @@
 #define		MAX_SELECT_LOADS   	512
 #define		MAX_PAL_SIZE		1024
 #define		MAX_CACHED_BACKGROUNDS 9
+#define     MAX_DOTS            10                  // Max active dot effects.
 #define     MAX_ARG_COUNT       64
 #define     PLATFORM_DEFAULT_X  99999
-#define     LIFESPAN_DEFAULT	0x7fffffff
+
 /*
 Note: the min Z coordinate of the player is important
 for several other drawing operations.
@@ -99,8 +100,8 @@ movement restirctions are here!
 #define		FRONTPANEL_Z		(PLAYER_MAX_Z+50)
 #define     HUD_Z               (FRONTPANEL_Z+10000)
 #define		HOLE_Z				(PLAYER_MIN_Z-46)
-#define		SHADOW_Z			(PLAYER_MIN_Z-47)
-#define		NEONPANEL_Z			(PLAYER_MIN_Z-48)
+#define		NEONPANEL_Z			(PLAYER_MIN_Z-47)
+#define		SHADOW_Z			(PLAYER_MIN_Z-48)
 #define		SCREENPANEL_Z		(PLAYER_MIN_Z-49)
 #define		PANEL_Z				(PLAYER_MIN_Z-50)
 #define		MIRROR_Z			(PLAYER_MIN_Z-5)
@@ -116,84 +117,6 @@ movement restirctions are here!
 #define		DEFAULT_ATK_DROPV_Y 3.0
 #define		DEFAULT_ATK_DROPV_X 1.2
 #define		DEFAULT_ATK_DROPV_Z 0
-
-#define		ITEM_HIDE_POSITION_Z 100000	
-
-// Caskey, Damon V.
-// 2019-01-27
-// 
-// Flags for animation status.
-typedef enum
-{
-	ANIMATING_REVERSE = -1,
-	ANIMATING_NONE = 0,
-	ANIMATING_FORWARD = 1
-} e_animating;
-
-// Caskey, Damon V.
-// 2019-02-04
-//
-// Flags for special attack force values.
-typedef enum
-{
-	ATTACK_FORCE_LAND_AUTO		= -1,
-	ATTACK_FORCE_LAND_COMMAND	= -2
-} e_attack_force;
-
-// Caskey, Damon V.
-// 2019-02-05
-typedef enum
-{
-	AUTOKILL_NONE				= 0,
-	AUTOKILL_ANIMATION_COMPLETE	= (1 << 0),
-	AUTOKILL_ATTACK_HIT			= (1 << 1)
-} e_autokill_state;
-
-// Caskey, Damon V.
-// 2019-02-05
-typedef enum
-{
-	INVINCIBLE_NONE			= 0,
-	INVINCIBLE_INTANGIBLE	= (1 << 0),
-	INVINCIBLE_HP_MINIMUM	= (1 << 1),
-	INVINCIBLE_HP_NULLIFY	= (1 << 2),
-	INVINCIBLE_HP_RESET		= (1 << 3)
-} e_invincible_state;
-
-// Caskey, Damon V.
-// 2019-01-25
-// 
-// Flags for flags used to time update functions.
-typedef enum
-{
-	UPDATE_MARK_NONE				= 0,
-	UPDATE_MARK_CHECK_AI			= (1 << 0),
-	UPDATE_MARK_CHECK_GRAVITY		= (1 << 1),
-	UPDATE_MARK_CHECK_MOVE			= (1 << 2),
-	UPDATE_MARK_UPDATE_ANIMATION	= (1 << 3)	
-} e_update_mark;
-
-// Caskey, Damon V.
-// 2019-02-04
-//
-// Flags for legacy bomb projectiles.
-typedef enum
-{
-	EXPLODE_NONE		= 0,
-	EXPLODE_PREPARED	= (1 << 0),
-	EXPLODE_DETONATE	= (1 << 1)
-} e_explode_state;
-
-// Caskey, Damon V.
-// 2019-01-25
-//
-// Flags for rising state.
-typedef enum
-{
-	RISING_NONE	= 0,
-	RISING_RISE		= (1 << 0),
-	RISING_ATTACK	= (1 << 1)
-} e_rising_state;
 
 // PLAY/REC INPUT vars
 typedef struct InputKeys
@@ -234,22 +157,6 @@ typedef struct PlayRecStatus {
 extern a_playrecstatus *playrecstatus;
 
 // Caskey, Damon V.
-// 2019-03-29
-//
-// Blending options.
-typedef enum
-{
-	BLEND_MODE_MODEL = -1,
-	BLEND_MODE_NONE,
-	BLEND_MODE_ALPHA,
-	BLEND_MODE_ALPHA_NEGATIVE,
-	BLEND_MODE_OVERLAY,
-	BLEND_MODE_HARDLIGHT,
-	BLEND_MODE_DODGE,
-	BLEND_MODE_AVERAGE
-} e_blend_mode;
-
-// Caskey, Damon V.
 // 2018-04-23
 //
 // Initial values for projectile spawns.
@@ -258,58 +165,45 @@ typedef enum
     // Use bitwise ready values here so we can cram
     // different types of data into one value.
 
-	PROJECTILE_PRIME_NONE				= 0,
-
     // Source for projectiles base.
-    PROJECTILE_PRIME_BASE_FLOOR         = (1 << 0),
-    PROJECTILE_PRIME_BASE_Y             = (1 << 1),
+    PROJECTILE_PRIME_BASE_FLOOR         = 0x00000001,
+    PROJECTILE_PRIME_BASE_Y             = 0x00000002,
 
     // Movement behavior on launch.
-    PROJECTILE_PRIME_LAUNCH_MOVING      = (1 << 2),
-    PROJECTILE_PRIME_LAUNCH_STATIONARY  = (1 << 3),
+    PROJECTILE_PRIME_LAUNCH_MOVING      = 0x00000004,
+    PROJECTILE_PRIME_LAUNCH_STATIONARY  = 0x00000008,
 
     // Type of projectile as determined by launch method.
-    PROJECTILE_PRIME_REQUEST_FLASH      = (1 << 4),
-    PROJECTILE_PRIME_REQUEST_KNIFE      = (1 << 5),
-    PROJECTILE_PRIME_REQUEST_PROJECTILE = (1 << 6),
-    PROJECTILE_PRIME_REQUEST_PSHOTNO    = (1 << 7),
-    PROJECTILE_PRIME_REQUEST_SHOT       = (1 << 8),
-    PROJECTILE_PRIME_REQUEST_UNDEFINED  = (1 << 9),		// Probably by a script.
+    PROJECTILE_PRIME_REQUEST_FLASH      = 0x00000010,
+    PROJECTILE_PRIME_REQUEST_KNIFE      = 0x00000020,
+    PROJECTILE_PRIME_REQUEST_PROJECTILE = 0x00000040,
+    PROJECTILE_PRIME_REQUEST_PSHOTNO    = 0x00000080,
+    PROJECTILE_PRIME_REQUEST_SHOT       = 0x00000100,
+    PROJECTILE_PRIME_REQUEST_UNDEFINED  = 0x00000200,   // Probably by a script.
 
 
     // How was projectile model determined?
-    PROJECTILE_PRIME_SOURCE_ANIMATION   = (1 << 10),	//  Animation setting.
-    PROJECTILE_PRIME_SOURCE_GLOBAL      = (1 << 11),	//  Global "knife" or global "shot".
-    PROJECTILE_PRIME_SOURCE_INDEX       = (1 << 12),	//  By projectile's model index.
-    PROJECTILE_PRIME_SOURCE_HEADER      = (1 << 13),	//  Model header setting.
-    PROJECTILE_PRIME_SOURCE_NAME        = (1 << 14),	//  By projectile's model name.
-    PROJECTILE_PRIME_SOURCE_WEAPON      = (1 << 15)		//  From a SUBTYPE_PROJECTLE weapon pickup.
+    PROJECTILE_PRIME_SOURCE_ANIMATION   = 0x00000400,   //  Animation setting.
+    PROJECTILE_PRIME_SOURCE_GLOBAL      = 0x00000800,   //  Global "knife" or global "shot".
+    PROJECTILE_PRIME_SOURCE_INDEX       = 0x00001000,   //  By projectile's model index.
+    PROJECTILE_PRIME_SOURCE_HEADER      = 0x00002000,   //  Model header setting.
+    PROJECTILE_PRIME_SOURCE_NAME        = 0x00004000,   //  By projectile's model name.
+    PROJECTILE_PRIME_SOURCE_WEAPON      = 0x00008000    //  From a SUBTYPE_PROJECTLE weapon pickup.
 } e_projectile_prime;
 
 // State of attack boxes.
 typedef enum
 {
-    ATTACKING_NONE,
+    ATTACKING_INACTIVE,
     ATTACKING_PREPARED,
     ATTACKING_ACTIVE
     // Next should be 4, 8, ... for bitwise evaluations.
 } e_attacking_state;
 
-// Caskey, Damon V.
-// 2019-02-06
-//
-// State of blasted (thrown or hit withblasting attack).
-typedef enum
-{
-	BLAST_NONE,
-	BLAST_ATTACK,
-	BLAST_TOSS
-} e_blasted_state;
-
 // State of idle
 typedef enum
 {
-    IDLING_NONE,
+    IDLING_INACTIVE,
     IDLING_PREPARED,
     IDLING_ACTIVE
 } e_idling_state;
@@ -317,7 +211,7 @@ typedef enum
 // State of edge.
 typedef enum
 {
-    EDGE_NONE,
+    EDGE_NO,
     EDGE_LEFT,
     EDGE_RIGHT
 } e_edge_state;
@@ -325,10 +219,10 @@ typedef enum
 // State of duck.
 typedef enum
 {
-    DUCK_NONE	= 0,
-    DUCK_PREPARED	= (1 << 0),
-    DUCK_ACTIVE		= (1 << 1),
-    DUCK_RISE		= (1 << 2)
+    DUCK_INACTIVE,
+    DUCK_PREPARED,
+    DUCK_ACTIVE,
+    DUCK_RISE = 4
 } e_duck_state;
 
 // Platform props
@@ -360,20 +254,6 @@ typedef enum
     PORTING_XBOX,
     PORTING_VITA
 } e_porting;
-
-// Caskey, Damon V.
-// 2019-01-08
-//
-// Debugging display options for end user.
-typedef enum
-{
-	DEBUG_DISPLAY_NONE				= (1 << 0),
-	DEBUG_DISPLAY_COLLISION_ATTACK	= (1 << 1),
-	DEBUG_DISPLAY_COLLISION_BODY	= (1 << 2),
-	DEBUG_DISPLAY_PERFORMANCE		= (1 << 3),
-	DEBUG_DISPLAY_PROPERTIES		= (1 << 4),
-	DEBUG_DISPLAY_RANGE				= (1 << 5)
-} e_debug_display;
 
 typedef enum
 {
@@ -410,29 +290,31 @@ typedef struct
     int font_index;
 } s_debug_xy_msg;
 
-// Caskey, Damon V
-// 2013-12-27
-//
-// Key definitions.
 typedef enum
 {
-    FLAG_ESC			= (1 << 0),
-    FLAG_START			= (1 << 1),
-    FLAG_MOVELEFT		= (1 << 2),
-    FLAG_MOVERIGHT		= (1 << 3),
-    FLAG_MOVEUP		    = (1 << 4),
-    FLAG_MOVEDOWN		= (1 << 5),
-    FLAG_ATTACK		    = (1 << 6),
-    FLAG_JUMP			= (1 << 7),
-    FLAG_SPECIAL		= (1 << 8),
-    FLAG_SCREENSHOT	    = (1 << 9),
-    FLAG_ATTACK2		= (1 << 10),
-    FLAG_ATTACK3		= (1 << 11),
-    FLAG_ATTACK4		= (1 << 12),
+    /*
+    Key def enum.
+    Damon V. Caskey
+    2013-12-27
+    */
+
+    FLAG_ESC			= 0x00000001,
+    FLAG_START			= 0x00000002,
+    FLAG_MOVELEFT		= 0x00000004,
+    FLAG_MOVERIGHT		= 0x00000008,
+    FLAG_MOVEUP		    = 0x00000010,
+    FLAG_MOVEDOWN		= 0x00000020,
+    FLAG_ATTACK		    = 0x00000040,
+    FLAG_JUMP			= 0x00000080,
+    FLAG_SPECIAL		= 0x00000100,
+    FLAG_SCREENSHOT	    = 0x00000200,
+    FLAG_ATTACK2		= 0x00000400,
+    FLAG_ATTACK3		= 0x00000800,
+    FLAG_ATTACK4		= 0x00001000,
     FLAG_ANYBUTTON		= (FLAG_START|FLAG_SPECIAL|FLAG_ATTACK|FLAG_ATTACK2|FLAG_ATTACK3|FLAG_ATTACK4|FLAG_JUMP),
     FLAG_CONTROLKEYS    = (FLAG_SPECIAL|FLAG_ATTACK|FLAG_ATTACK2|FLAG_ATTACK3|FLAG_ATTACK4|FLAG_JUMP|FLAG_MOVEUP|FLAG_MOVEDOWN|FLAG_MOVELEFT|FLAG_MOVERIGHT),
-    FLAG_FORWARD		= (1 << 13),
-    FLAG_BACKWARD		= (1 << 14)
+    FLAG_FORWARD		= 0x40000000,
+    FLAG_BACKWARD		= 0x80000000
 } e_key_def;
 
 typedef enum
@@ -458,46 +340,50 @@ typedef enum
     SDID_ESC
 } e_key_id;
 
-// Caskey, Damon V.
-// 2013-12-27
-//
-// Entity types.
 typedef enum
 {
-    TYPE_NONE		= (1 << 0),
-    TYPE_PLAYER		= (1 << 1),
-    TYPE_ENEMY		= (1 << 2),
-    TYPE_ITEM		= (1 << 3),
-    TYPE_OBSTACLE	= (1 << 4),
-    TYPE_STEAMER	= (1 << 5),
-    TYPE_SHOT		= (1 << 6),		// 7-1-2005 type to use for player projectiles
-    TYPE_TRAP		= (1 << 7),		// 7-1-2005 lets face it enemies are going to just let you storm in without setting a trap or two!
-    TYPE_TEXTBOX	= (1 << 8),		// New textbox type for displaying messages
-    TYPE_ENDLEVEL	= (1 << 9),		// New endlevel type that ends the level when touched
-    TYPE_NPC		= (1 << 10),	// A character can be an ally or enemy.
-    TYPE_PANEL		= (1 << 11),	// Fake panel, scroll with screen using model speed
+    /*
+    Entity type enumerator.
+    Damon V. Caskey
+    2013-12-27
+    */
+
+    TYPE_NONE,
+    TYPE_PLAYER,
+    TYPE_ENEMY,
+    TYPE_ITEM      = 4,
+    TYPE_OBSTACLE  = 8,
+    TYPE_STEAMER	= 16,
+    TYPE_SHOT		= 32,			// 7-1-2005 type to use for player projectiles
+    TYPE_TRAP		= 64,			// 7-1-2005 lets face it enemies are going to just let you storm in without setting a trap or two!
+    TYPE_TEXTBOX   = 128,			// New textbox type for displaying messages
+    TYPE_ENDLEVEL  = 256,			// New endlevel type that ends the level when touched
+    TYPE_NPC       = 512,          // A character can be an ally or enemy.
+    TYPE_PANEL     = 1024,         // Fake panel, scroll with screen using model speed
     TYPE_MAX		= TYPE_PANEL,	// For openbor constant check and type hack (i.e., custom hostile and candamage)
-    TYPE_RESERVED	= 0x40000000    // should not use as a type
+    TYPE_RESERVED  = 0x40000000    // should not use as a type
 } e_entity_type;
 
-// Caskey, Damon V.
-// 2013-12-27
-//
-// Entity sub-types.
 typedef enum
 {
-    SUBTYPE_NONE		= (1 << 0),
-    SUBTYPE_BIKER		= (1 << 1),
-    SUBTYPE_NOTGRAB		= (1 << 2),
-    SUBTYPE_ARROW		= (1 << 3),		// 7-1-2005  subtype for an "enemy" that flies across the screen and dies
-    SUBTYPE_TOUCH		= (1 << 4),		// ltb 1-18-05  new Item subtype for a more platformer feel.
-    SUBTYPE_WEAPON		= (1 << 5),
-    SUBTYPE_NOSKIP		= (1 << 6),		// Text type that can't be skipped
-    SUBTYPE_FLYDIE		= (1 << 7),		// Now obstacles can be hit and fly like on Simpsons/TMNT
-    SUBTYPE_BOTH		= (1 << 8),		// Used with TYPE_ENDLEVEL to force both players to reach the point before ending level
-    SUBTYPE_PROJECTILE	= (1 << 9),		// New weapon projectile type that can be picked up by players/enemies
-    SUBTYPE_FOLLOW		= (1 << 10),	// Used by NPC character, if set, they will try to follow players
-    SUBTYPE_CHASE		= (1 << 11)		// Used by enemy always chasing you
+    /*
+    Entity subtype enumerator.
+    Damon V. Caskey
+    2013-12-27
+    */
+
+    SUBTYPE_NONE,
+    SUBTYPE_BIKER,
+    SUBTYPE_NOTGRAB,
+    SUBTYPE_ARROW,		//7-1-2005  subtype for an "enemy" that flies across the screen and dies
+    SUBTYPE_TOUCH,		// ltb 1-18-05  new Item subtype for a more platformer feel.
+    SUBTYPE_WEAPON,
+    SUBTYPE_NOSKIP,		// Text type that can't be skipped
+    SUBTYPE_FLYDIE,		// Now obstacles can be hit and fly like on Simpsons/TMNT
+    SUBTYPE_BOTH,		// Used with TYPE_ENDLEVEL to force both players to reach the point before ending level
+    SUBTYPE_PROJECTILE, // New weapon projectile type that can be picked up by players/enemies
+    SUBTYPE_FOLLOW,     // Used by NPC character, if set, they will try to follow players
+    SUBTYPE_CHASE       // Used by enemy always chasing you
 } e_entity_type_sub;
 
 typedef enum
@@ -583,7 +469,6 @@ typedef enum //Animations
     2013-12-27
     */
 
-    ANI_NONE,               // To indicate a blank or no animation at all.
     ANI_IDLE,
     ANI_WALK,
     ANI_JUMP,
@@ -598,8 +483,6 @@ typedef enum //Animations
     ANI_ATTACK4,			// Very important
     ANI_UPPER,
     ANI_BLOCK,				// New block animation
-	ANI_BLOCKRELEASE,		// Transition out of block.
-	ANI_BLOCKSTART,			// Transition to block.
     ANI_JUMPATTACK,
     ANI_JUMPATTACK2,
     ANI_GET,
@@ -645,9 +528,7 @@ typedef enum //Animations
     ANI_GRABDOWN2,			// Attack when a player has grabbed an opponent and presses down/attack
     ANI_GRABUP,				// Attack when a player has grabbed an opponent and presses up/attack
     ANI_GRABUP2,			// Attack when a player has grabbed an opponent and presses up/attack
-    ANI_SELECT,				// Animation that is displayed at the select screen in place of idle.
-	ANI_SELECTIN,			// Animation that is displayed at the select screen, when first highlighted.
-	ANI_SELECTOUT,			// Animation that is displayed at the select screen, when moving to another character.
+    ANI_SELECT,				// Animation that is displayed at the select screen
     ANI_DUCK,				// Animation that is played when pressing down in "platform" type levels
     ANI_FAINT,  			// Faint animations for players/enemys by tails
     ANI_CANT,  				// Can't animation for players(animation when mp is less than mpcost) by tails.
@@ -1009,16 +890,13 @@ typedef enum
     ARG_INT
 } e_arg_types;
 
-
-// Caskey, Damon V.
-// 2013-12-27
-//
-// Attack types. If more types are added,
-// don't forget to add them to script
-// access and account for them in the
-// model load logic.
 typedef enum
 {
+    /*
+    Attack type enum
+    Damon V. Caskey
+    2013-12-27
+    */
     ATK_NONE            = -1,   // When we want no attack at all, such as damage_on_landing's default.
     ATK_NORMAL,
     ATK_NORMAL1			= ATK_NORMAL,
@@ -1036,22 +914,13 @@ typedef enum
     ATK_NORMAL8,
     ATK_NORMAL9,
     ATK_NORMAL10,
-
-    // For engine and script use. These are
-    // applied automatically by various
-    // conditions or intended for script logic.
-    ATK_BOSS_DEATH, // KO leftover enemies when boss is defeated.
-    ATK_ITEM,       // Scripting item logic. Item "attacks" entity that collects it.
-    ATK_LAND,       // Touching ground during a damage on landing fall.
-    ATK_LIFESPAN,   // Entity's lifespan timer expires.
-    ATK_LOSE,       // Players (with lose animation) when level time expires.
-    ATK_PIT,        // Entity falls into a pit and reaches specified depth.
-    ATK_TIMEOVER,   // Players (without lose animation) when level time expires.
-
-    // Default max attack types (must
-    // be below all attack types in enum
-    // to get correct value)
-    MAX_ATKS,
+    ATK_ITEM,
+    ATK_LAND,
+    ATK_PIT,
+    ATK_LIFESPAN,
+    ATK_LOSE,
+    ATK_TIMEOVER,
+    MAX_ATKS,                       //Default max attack types (must be below all attack types in enum to get correct value)
     STA_ATKS        = (MAX_ATKS-10)
 } e_attack_types;
 
@@ -1246,62 +1115,23 @@ typedef enum
 
 typedef enum
 {
-    // These must be kept in the current order
-    // to ensure backward compatibility with
-    // modules that used magic numbers before
-    // constants were available.
-	BIND_ANIMATION_NONE				= 0,
-    BIND_ANIMATION_TARGET			= (1 << 0),
-    BIND_ANIMATION_FRAME_TARGET		= (1 << 1),
-    BIND_ANIMATION_REMOVE			= (1 << 2),
-    BIND_ANIMATION_FRAME_REMOVE		= (1 << 3),
+    /*
+    Direction (facing) enum.
+    Damon V. Caskey
+    2013-12-16
+    */
 
-	// Following were added post constant availablity, so
-	// order does not matter.
-
-    BIND_ANIMATION_DEFINED			= (1 << 4),
-    BIND_ANIMATION_FRAME_DEFINED	= (1 << 5)
-} e_bind_animation_match;
-
-typedef enum
-{
-    // These must be kept in the current order
-    // to ensure backward compatibility with
-    // modules that used magic numbers before
-    // constants were available.
-
-    BIND_MODE_NONE		= 0,
-    BIND_MODE_TARGET	= (1 << 0),
-    BIND_MODE_LEVEL		= (1 << 1)
-} e_bind_mode;
-
-typedef enum
-{
-    BIND_OVERRIDE_NONE             = 0,
-    BIND_OVERRIDE_FALL_LAND        = (1 << 0),
-    BIND_OVERRIDE_LANDFRAME        = (1 << 1),
-    BIND_OVERRIDE_SPECIAL_AI       = (1 << 2),
-    BIND_OVERRIDE_SPECIAL_PLAYER   = (1 << 3)
-} e_bind_override;
-
-// Caskey, Damon V.
-// 2013-12-16
-//
-// Direction (facing) enum.
-typedef enum
-{
-	DIRECTION_NONE = -1,	// Only to indicate a temporary direction flag isn't set or in use.
-	DIRECTION_LEFT,
-	DIRECTION_RIGHT
+    DIRECTION_LEFT,
+    DIRECTION_RIGHT
 } e_direction;
 
-// Caskey, Damon V.
-// 2013-12-28
-//
-// Direction adjustment enum. Used for binding and changing direction of defender when hit.
 typedef enum
 {
-    
+    /*
+    Direction adjustment enum. Used for binding and changing direction of defender when hit.
+    Damon V. Caskey
+    2013-12-28
+    */
 
     DIRECTION_ADJUST_NONE,             //Leave as is.
     DIRECTION_ADJUST_SAME,             //Same as attacker/bind/etc.
@@ -1324,11 +1154,19 @@ typedef enum
 
 typedef enum
 {
-	DAMAGE_RECURSIVE_MODE_NONE			= 0,
-	DAMAGE_RECURSIVE_MODE_HP			= (1 << 0),
-	DAMAGE_RECURSIVE_MODE_MP			= (1 << 1),
-	DAMAGE_RECURSIVE_MODE_NON_LETHAL	= (1 << 2)
-} e_damage_recursive;
+    /*
+    Damage over time mode enum.
+    Damon V. Caskey
+    2013-12-27
+    */
+
+    DOT_MODE_OFF,              //Disable.
+    DOT_MODE_HP,               //Drain HP.
+    DOT_MODE_HP_MP,            //Drain HP and MP.
+    DOT_MODE_MP,               //Drain mp.
+    DOT_MODE_NON_LETHAL_HP,    //Drain HP, but do not kill entity.
+    DOT_MODE_NON_LETHAL_HP_MP  //Drain HP and MP, but do not kill entity.
+} e_dot_mode;
 
 typedef enum
 {
@@ -1370,35 +1208,6 @@ typedef enum
     FOLLOW_CONDITION_HOSTILE_NOKILL_NOBLOCK_NOGRAB, //Perform if target is hostile, will not be killed, didn't block, and cannot be grabbed.
     FOLLOW_CONDITION_HOSTILE_NOKILL_BLOCK,         //Perform if target is hostile, will not be killed and block.
 } e_follow_condition;
-
-// Caskey, Damon V.
-// 2019-05-31
-// Grab attack selection.
-typedef enum
-{
-	// Note these action constants are used as element IDs for
-	// an array of grab attack options.
-	//
-	// GRAB_ACTION_SELECT_FINISH is a special action not included 
-	// in the array of grab attacks, and GRAB_ACTION_SELECT_MAX
-	// is used as the array size. 
-	
-	// Also note that AI selects which grab attack to perform 
-	// by randomly generating a number from 0 to GRAB_ACTION_SELECT_MAX. 
-	// This means GRAB_ACTION_SELECT_MAX should reflect number 
-	// of options with exception of GRAB_ACTION_SELECT_FINISH, 
-	// and that the value GRAB_ACTION_SELECT_FINISH should always 
-	// fall outside of the 0 to GRAB_ACTION_SELECT_MAX range. Order
-	// of the options does not matter otherwise.
-
-	GRAB_ACTION_SELECT_ATTACK,	
-	GRAB_ACTION_SELECT_BACKWARD,
-	GRAB_ACTION_SELECT_FORWARD,
-	GRAB_ACTION_SELECT_DOWN,
-	GRAB_ACTION_SELECT_UP,
-	GRAB_ACTION_SELECT_MAX,
-	GRAB_ACTION_SELECT_FINISH
-} e_grab_action_select;
 
 typedef enum
 {
@@ -1538,29 +1347,37 @@ typedef enum
 n = atoi(a+strclen(b)); \
 if(n<1) n = 1;
 
+#define lut_mul ((level && current_palette)?(level->blendings[current_palette-1][BLEND_MULTIPLY]):(blendings[BLEND_MULTIPLY]))
+#define lut_screen ((level && current_palette)?(level->blendings[current_palette-1][BLEND_SCREEN]):(blendings[BLEND_SCREEN]))
+#define lut_overlay ((level && current_palette)?(level->blendings[current_palette-1][BLEND_OVERLAY]):(blendings[BLEND_OVERLAY]))
+#define lut_hl ((level && current_palette)?(level->blendings[current_palette-1][BLEND_HARDLIGHT]):(blendings[BLEND_HARDLIGHT]))
+#define lut_dodge ((level && current_palette)?(level->blendings[current_palette-1][BLEND_DODGE]):(blendings[BLEND_DODGE]))
+#define lut_half ((level && current_palette)?(level->blendings[current_palette-1][BLEND_HALF]):(blendings[BLEND_HALF]))
+#define lut ((level && current_palette)?(level->blendings[current_palette-1]):(blendings))
+
 #define ABS(x) ((x)>0?(x):(-(x)))
 
 #define set_attacking(e) e->attacking = ATTACKING_PREPARED;\
-						 e->idling = IDLING_NONE;
+						 e->idling = IDLING_INACTIVE;
 
 #define set_jumping(e)   e->jumping = 1;\
-						 e->idling = IDLING_NONE; \
-						 e->ducking = DUCK_NONE;
+						 e->idling = IDLING_INACTIVE; \
+						 e->ducking = DUCK_INACTIVE;
 
 #define set_charging(e)  e->charging = 1;\
-						 e->idling = IDLING_NONE; \
-						 e->ducking = DUCK_NONE;
+						 e->idling = IDLING_INACTIVE; \
+						 e->ducking = DUCK_INACTIVE;
 
 #define set_getting(e)   e->getting = 1;\
-						 e->idling = IDLING_NONE; \
-						 e->ducking = DUCK_NONE;
+						 e->idling = IDLING_INACTIVE; \
+						 e->ducking = DUCK_INACTIVE;
 
 #define set_blocking(e)  e->blocking = 1;\
-						 e->idling = IDLING_NONE;
+						 e->idling = IDLING_INACTIVE;
 
 #define set_turning(e)  e->turning = 1;\
-						e->idling = IDLING_NONE; \
-						 e->ducking = DUCK_NONE;
+						e->idling = IDLING_INACTIVE; \
+						 e->ducking = DUCK_INACTIVE;
 
 #define expand_time(e)   if(e->stalltime>0) e->stalltime++;\
 						 if(e->releasetime>0)e->releasetime++;\
@@ -1595,7 +1412,7 @@ if(n<1) n = 1;
 		(other->animation->vulnerable[other->animpos] && \
 		 (!self->animation->move || self->animation->move[self->animpos]->axis.x == 0) && \
 		 (!self->animation->move || self->animation->move[self->animpos]->axis.z == 0 ) && \
-		 !(other->nograb || other->invincible & INVINCIBLE_INTANGIBLE || other->link || \
+		 !(other->nograb || other->invincible || other->link || \
 		   other->model->animal || inair(other) || \
 		  (self->modeldata.type == TYPE_PLAYER && other->modeldata.type == TYPE_PLAYER && savedata.mode)))
 
@@ -1772,20 +1589,14 @@ typedef struct
 // 2016-10-31
 //
 // Recursive damage structure
-// for attack boxes and damage 
-// recipient.
-typedef struct s_damage_recursive
+// for attack boxes only.
+typedef struct
 {
-    int							force;  // Damage force per tick.
-    int							index;  // Index.
-	e_damage_recursive			mode;   // Mode.
-    int							rate;   // Tick delay.
-	int							tag;	// User defined value.
-	unsigned int				tick;   // Time of next tick.
-    unsigned int				time;   // Time to expire.
-	int							type;	// Attack type.
-	struct entity				*owner;	// Entity that caused the recursive damage.
-	struct s_damage_recursive	*next;	// Next node of linked list.
+    int             force;  // Damage force per tick.
+    int             index;  // Index.
+    e_dot_mode      mode;   // Mode.
+    int             rate;   // Tick delay.
+    unsigned int    time;   // Time to expire.
 } s_damage_recursive;
 
 typedef struct
@@ -1890,7 +1701,7 @@ typedef struct
     int                 hitsound;           // Sound effect to be played when attack hits opponent
     int                 index;              // Possible future support of multiple boxes - it's doubt even if support is added this property will be needed.
     unsigned int        maptime;            // Time for forcemap to remain in effect.
-    unsigned int        next_hit_time;          // pain invincible time
+    unsigned int        pain_time;          // pain invincible time
     unsigned int        sealtime;           // Time for seal to remain in effect.
     int                 tag;                // User defined tag for scripts. No hard coded purpose.
     int                 grab_distance;      // Distance used by "grab".
@@ -1917,12 +1728,10 @@ typedef struct
 // Last hit structure. Populated each time a collision is detected.
 typedef struct
 {
-    int						confirm;    // Will engine's default hit handling be used?
-    s_axis_principal_float	position;   // X,Y,Z of last hit.
-    s_collision_attack		*attack;    // Collision attacking box.
-    s_collision_body		*body;      // Collision detect box.
-	struct entity			*target;	// Entity taking the hit.
-	struct entity			*attacker;	// Entity dishing out the hit.
+    int                 confirm;    // Will engine's default hit handling be used?
+    s_axis_principal_float            position;   // X,Y,Z of last hit.
+    s_collision_attack  *attack;    // Collision attacking box.
+    s_collision_body    *body;      // Collision detect box.
 } s_lasthit;
 
 typedef struct
@@ -2097,7 +1906,7 @@ struct animlist
     struct animlist *next;
 };
 typedef struct animlist s_anim_list;
-extern s_anim_list *anim_list;
+s_anim_list *anim_list;
 
 typedef struct
 {
@@ -2130,8 +1939,6 @@ typedef struct
     Script         *update_script;                  //execute when update_ents
     Script         *think_script;                   //execute when entity thinks.
     Script         *takedamage_script;              //execute when taking damage.
-    Script         *on_bind_update_other_to_self_script;   //execute when adjust_bind runs, for the bind target entity.
-    Script         *on_bind_update_self_to_other_script;   //execute when adjust_bind runs, for the bound entity.
     Script         *ondeath_script;                 //execute when killed in game.
     Script         *onkill_script;                  //execute when removed from play.
     Script         *onpain_script;                  //Execute when put in pain animation.
@@ -2435,7 +2242,7 @@ typedef struct
     int loadflag;
     int selectable;
 } s_modelcache;
-extern s_modelcache *model_cache;
+s_modelcache *model_cache;
 
 // Caskey, Damon V.
 // 2013-12-08
@@ -2447,6 +2254,7 @@ typedef struct
     s_axis_principal_float        velocity;       // x,a,z velocity setting.
 } s_jump;
 
+
 // Caskey, Damon V.
 // 2013-12-17
 //
@@ -2454,16 +2262,12 @@ typedef struct
 // of entity to a target entity.
 typedef struct
 {
-    unsigned int            match;			// Animation binding type. ~~
-    int                     tag;            // User data.
-    int                     sortid;         // Relative binding sortid. Default = -1
-    int                     frame;          // Frame to match (only if requested in matching).
-    e_bind_override			overriding;     // Override specific AI behaviors while in bind (fall land, drop frame, specials, etc).
-    e_animations            animation;      // Animation to match (only if requested in matching).
-    s_axis_principal_int    positioning;    // Toggle binding on X, Y and Z axis.
-    s_axis_principal_int    offset;         // x,y,z offset.
-    e_direction_adjust      direction;      // Direction force.
-    struct entity           *ent;           // Entity subject will bind itself to.
+    unsigned int      ani_bind;       // Animation binding type.
+    int               sortid;         // Relative binding sortid. Default = -1
+    s_axis_principal_int bind_toggle;    // Toggle binding on X, Y and Z axis.
+    s_axis_principal_int  offset;         // x,y,z offset.
+    e_direction_adjust      direction;      // Direction force
+    struct entity *ent;                     // Entity to bind.
 } s_bind;
 
 typedef struct
@@ -2484,7 +2288,7 @@ typedef struct
     int health_old;
     int mp_current;
     int mp_old;
-} s_energy_state;
+} s_energy_status;
 
 // Caskey, Damon V.
 // 2018-04-25
@@ -2501,166 +2305,163 @@ typedef struct
     char alias[MAX_NAME_LEN];   // char itemalias[MAX_NAME_LEN]; // Now items spawned can have their properties changed
 } s_item_properties;
 
+
 typedef struct entity
 {
-	// Sub structures.
-	s_damage_on_landing		damage_on_landing;					// ~~
-	s_bind					binding;							// Binding self to another entity. ~~
-	s_axis_principal_float	position;							// x,y,z location. ~~
-	s_axis_principal_float	velocity;							// x,y,z movement speed. ~~ 
-	s_energy_state			energy_state;						// Health and MP. ~~	
-	s_model					modeldata;							// model data copied here ~~
-	s_jump					jump;								// Jumping velocity and animationnid. ~~	
-	s_rush					rush;								// Rush combo display. ~~
+    e_spawn_type        spawntype;              // Type of spawn (level spawn, script spawn, ...)
+    bool                exists;                 // flag to determine if it is a valid entity.
+    bool                deduct_ammo;            // Check for ammo count?
+    e_projectile_prime  projectile_prime;       // If this entity is a projectile, several priming values go here to set up its behavior.
+    int                 playerindex;            // Player controlling the entity.
+    s_energy_status     energy_status;          // Health and MP.
+    char                name[MAX_NAME_LEN]; // this is display name
+    s_model             *defaultmodel;          // this is the default model
+    s_model             *model;                 // current model
+    s_model             modeldata;              // model data copied here
+    s_item_properties   *item_properties;       // Properties copied to an item entity when it is dropped.
+    bool boss;
+    unsigned int dying;   // Corresponds with which remap is to be used for the dying flash
+    unsigned int dying2;  // Corresponds with which remap is to be used for the dying flash for per2
+    unsigned int per1;    // Used to store at what health value the entity begins to flash
+    unsigned int per2;    // Used to store at what health value the entity flashes more rapidly
+    e_direction direction;
+    int nograb; // Some enemies cannot be grabbed (bikes) - now used with cantgrab as well
+    int nograb_default; // equal to nograb  but this is remain the default value setetd in entity txt file (by White Dragon)
+    int movestep;
+    s_axis_principal_float position; //x,y,z location.
+    s_axis_principal_float velocity; //x,y,z movement speed.
+    float destx; // temporary values for ai functions
+    float destz;
+    float movex;
+    float movez;
+    float speedmul;
+    float base;     // Default altitude
+    float altbase; // Altitude affected by movea
+    s_jump jump;    //Jumping velocity and id.
+    unsigned combostep[MAX_SPECIAL_INPUTS];  // merge into an array to clear up some code
 
-	// Structured pointers.
-	s_anim					*animation;							// Pointer to animation collection. ~~
-	s_drawmethod			*drawmethod;						// Graphic settings. ~~
-	s_item_properties		*item_properties;					// Properties copied to an item entity when it is dropped. ~~	
-	s_model					*defaultmodel;						// this is the default model ~~
-	s_defense				*defense;							// Resistance or vulnerability to certain attack types. ~~
-	s_model					*model;								// current model ~~
-	s_damage_recursive		*recursive_damage;					// Recursive damage linked list head. ~~
-	s_axis_plane_lateral_float *waypoints;						// Pathfinding waypoint array. ~~
-	s_scripts				*scripts;							// Loaded scripts. ~~
-
-	struct entity			*collided_entity;					// Opposing entity when entities occupy same space. ~~
-	struct entity			*custom_target;						// Target forced by modder via script ~~
-	struct entity			*grabbing;							// Added for "platform level" layering. ~~
-	struct entity			*hithead;							// Platform entity when jumping and hitting head on the bottom. ~~
-	struct entity			*landed_on_platform;				// Platform entity this entity landed on. ~~
-	struct entity			*lasthit;							// Last entity this one hit. ~~
-	struct entity			*link;								// Used to link 2 entities together. ~~
-	struct entity			*opponent;							// Last entity interacted with. ~~	
-	struct entity			*owner;								// Projectile knows its owner. ~~
-	struct entity			*parent;							// Its spawner (when a sub entity). ~~
-	struct entity			*subentity;							// Summoned sub entity. ~~
-	struct entity			*weapent;							// Item entity that was picked up as a weapon. ~~
-
-	// Pointers
-	float					*offense_factors;					// Augment or reduce damage output for some attack types. ~~
-
-	unsigned char			*colourmap;							// Colortable in use. ~~
-
-	Varlist					*varlist;							// Entity var collection. ~~
-
-	// Floating decimals.
-	float					altbase;							// Altitude affected by movea. ~~
-	float					base;								// Default altitude. ~~
-	float					destx;								// temporary values for ai functions ~~
-	float					destz;								// ~~
-	float					knockdowncount;						// Attack knockdown force reduces this. Only fall when at 0. ~~
-	float					movex;								// Reposition this many pixels per frame. Used by animation movex command. ~~
-	float					movez;								// Reposition this many pixels per frame. Used by animation movez command. ~~
-	float					speedmul;							// Final multiplier for movement/velocity. ~~
-
-    // Size defined ints (for time).
-	u32						combotime;							// If not expired, continue to next attack in series combo. ~~
-	u32						guardtime;							// Next time to auto adjust guardpoints. ~~
-	u32						freezetime;							// Used to store at what point the a frozen entity becomes unfrozen. ~~
-	u32						invinctime;							// Used to set time for invincibility to expire. ~~
-	u32						knockdowntime;						// When knockdown count is expired. ~~
-	u32						magictime;							// Next time to auto adjust MP. ~~
-	u32						maptime;							// When forcemap expires. ~~
-	u32						movetime;							// For special moves. Grace time between player inputs. ~~
-	u32						mpchargetime;						// Next recharge tick when in the CHARGE animation. ~~
-	u32						next_hit_time;						// When temporary invincibility after getting hit expires. ~~
-	u32						nextanim;							// Time for next frame (or to mark animation finished). ~~
-	u32						nextattack;							// Time for next chance to attack. ~~
-	u32						nextmove;							// Same as tosstime, but for X, Z movement. ~~
-	u32						nextthink;							// Time for next main AI update. ~~
-	u32						pausetime;							// 2012/4/30 UT: Remove lastanimpos and add this. Otherwise hit pause is always bound to frame and attack box. ~~
-	u32						releasetime;						// Delay letting go of grab when holding away command. ~~
-	u32						sealtime;							// When seal expires. ~~    
-	u32						sleeptime;							// When to start the SLEEP animation. ~~
-	u32						stalltime;							// AI waits to perform actions. ~~
-	s_staydown				staydown;							// Delay modifiers before rise or riseattack can take place. 2011_04_08, DC: moved to struct. ~~
-	u32						timestamp;							// Elasped time assigned when spawned. ~~
-    u32						toss_time;							// Used by gravity code (If > elapsed time, gravity has no effect). ~~
-    u32						turntime;							// Time when entity can switch direction. ~~
+    // ---------------------- action times -------------------------------
+    u32	lastmove;
+    u32 lastdir;
+    u32 timestamp;
+    u32 releasetime;
+    u32 toss_time; // Used by gravity code
+    u32 nextmove;
+    u32 stalltime;
+    u32 combotime; // For multiple-hit combo
+    u32 movetime; // For special move
+    u32 freezetime; // Used to store at what point the a frozen entity becomes unfrozen
+    u32 maptime; // used by forcemap
+    u32 sealtime; // used by seal (stops special moves).
+    u32 dot_time[MAX_DOTS]; //Dot time to expire.
+    int dot[MAX_DOTS]; //Dot mode.
+    int dot_atk[MAX_DOTS]; //Dot attack type.
+    int dot_force[MAX_DOTS]; //Dot amount.
+    int dot_rate[MAX_DOTS]; //Dot delay per tick.
+    int dot_cnt[MAX_DOTS]; //Dot time of next tick.
+    struct entity *dot_owner[MAX_DOTS]; //Dot owner.
+    u32 magictime;
+    u32 guardtime;
+    u32 nextanim;
+    u32 nextthink;
+    u32 nextattack;
+    u32 pain_time;
+    u32 pausetime; // 2012/4/30 UT: Remove lastanimpos and add this. Otherwise hit pause is always bound to frame and attack box.
+    u32 mpchargetime; // For the CHARGE animation
+    u32 sleeptime; // For the SLEEP animation
+    u32 knockdowntime; // count knock down hit
+    u32 invinctime; // Used to set time for invincibility to expire
+    u32 turntime;
+    s_staydown staydown; //Delay modifiers before rise or riseattack can take place. 2011_04_08, DC: moved to struct.
     // -------------------------end of times ------------------------------
-	
-	// Unsigned integers
-	unsigned int			animpos;							// Current animation frame. ~~
-	unsigned int			attack_id_incoming;					// ~~
-    unsigned int			attack_id_incoming2;				//Kratus (20-04-21) used to memorize the last 4 hitboxes and avoid the multihit bug
-    unsigned int			attack_id_incoming3;				//Kratus (20-04-21) used to memorize the last 4 hitboxes and avoid the multihit bug
-    unsigned int			attack_id_incoming4;				//Kratus (20-04-21) used to memorize the last 4 hitboxes and avoid the multihit bug
-	unsigned int			attack_id_outgoing;					// ~~
-	unsigned int			animnum;							// Current animation id. ~~
-	unsigned int			animnum_previous;					// Previous animation id. ~~
-	unsigned int			combostep[MAX_SPECIAL_INPUTS];		// merge into an array to clear up some code. ~~
-	unsigned int			dying;								// Corresponds with which remap is to be used for the dying flash ~~
-	unsigned int			dying2;								// Corresponds with which remap is to be used for the dying flash for per2 ~~
-	unsigned int			escapecount;						// hit count for escapehits. ~~
-	unsigned int			idlemode;							// Force a specfic alternate idle. ~~
-	unsigned int			pathblocked;						// Time accumulated while obstructed. Used to start pathfining routine. ~~
-	unsigned int			per1;								// Used to store at what health value the entity begins to flash ~~
-	unsigned int			per2;								// Used to store at what health value the entity flashes more rapidly ~~
-	unsigned int			numwaypoints;						// Count of waypoints in use. ~~
-	unsigned int			walkmode;							// Force a specfic alternate walk. ~~
+    int update_mark;
 
-	// Signed integers
-	int						last_damage_type;					// Used for set death, pain, rise, etc. animation. ~~
-	int						lifespancountdown;					// Life span count down. ~~
-	int						map;								// Stores the colourmap for restoring purposes. ~~
-	int						nograb;								// Some enemies cannot be grabbed (bikes) - now used with cantgrab as well ~~
-	int						nograb_default;						// equal to nograb  but this is remain the default value setetd in entity txt file (by White Dragon) ~~
-	int						playerindex;						// Player controlling the entity. ~~
-	int						seal;								// If 0+, entity can't perform special with >= energy cost. ~~
-	int						sortid;								// Drawing order (sprite queue sort id). ~~
+    //------------------------- a lot of flags ---------------------------
 
-	// Enumerated integers.
-	e_spawn_type			spawntype;							// Type of spawn (level spawn, script spawn, ...) ~~
-	e_projectile_prime		projectile_prime;					// If this entity is a projectile, several priming values go here to set up its behavior. ~~
-	e_animating				animating;							// Animation status (none, forward, reverse). ~~
-	e_attacking_state		attacking;							// ~~
-	e_autokill_state		autokill;							// Kill entity on condition. ~~
-	e_direction				direction;							//  ~~
-	e_duck_state			ducking;							// In or transitioning to/from duck. ~~
-	e_edge_state			edge;								// At an edge (unbalanced).
-	e_invincible_state		invincible;							// Attack invulnerability. ~~
-	e_direction				normaldamageflipdir;				// Used to reset backpain direction. ~~
-	e_blasted_state			projectile;							// Blasted or tossed (bowl over other entities in fall). ~~
-	e_rising_state			rising;								// Rise/Rise attacking. ~~
-	e_explode_state			toexplode;							// Bomb projectiles prepared or time to detonate. ~~
-	e_update_mark			update_mark;						// Which updates are completed. ~~
+    int seal; //1 = No specials.
+    int dead;
+    int jumping; // Stuff useful for AI
+    int idling;
+    int walking;
+    int drop;
+    e_attacking_state attacking;
+    int getting;
+    int turning;
+    bool charging;
+    unsigned int blocking;
+    int falling;
+    int running; // Flag to determine if a player is running
+    int ducking; // in duck stance
+    int grabwalking; // a flag for grabwalk check
+    int inpain; // playing pain animation
+    int inbackpain; // playing back pain/fall/rise/riseattack/die animation
+    int rising; // playing rise animation
+    int riseattacking; // playing rise attack animation
+    int edge; // in edge (unbalanced)
+    int normaldamageflipdir; // used to reset backpain direction
+    int frozen; // Flag to determine if an entity is frozen
+    bool blink;
+    int invincible; // Flag used to determine if player is currently invincible
+    int autokill; // Kill on end animation
+    int remove_on_attack;
+    int tocost; // Flag to determine if special costs life if doesn't hit an enemy
+    int noaicontrol; // pause A.I. control
+    int projectile;
+    int toexplode; // Needed to determine if the projectile is a type that will explode (bombs, dynamite, etc)
+    int animating; // Set by animation code can be -1, 0 or 1 (used for reverse animation)
+    bool arrowon; // Flag to display parrow/parrow2 or not
+    unsigned pathblocked;
+    s_axis_principal_float *waypoints;
+    int numwaypoints;
+    unsigned int animpos; // Current animation frame.
+    unsigned int animnum; // animation id.
+    unsigned int prevanimnum; // previous animation id.
+    s_anim *animation;
+    float knockdowncount;
+    s_damage_on_landing damage_on_landing;
+    int die_on_landing; // flag for damageonlanding (active if self->health <= 0)
+    int last_damage_type; // used for set death animation or pain animation
+    int map; // Stores the colourmap for restoring purposes
+    void (*think)();
+    void (*takeaction)();
+    int (*takedamage)(struct entity *, s_collision_attack *, int);
+    int (*trymove)(float, float);
+    unsigned int attack_id_incoming;
+    unsigned int attack_id_incoming2; //Additional hitboxes are used to avoid the multihit bug
+    unsigned int attack_id_incoming3; //Additional hitboxes are used to avoid the multihit bug
+    unsigned int attack_id_incoming4; //Additional hitboxes are used to avoid the multihit bug
+    unsigned int attack_id_outgoing;
+    int hitwall; // == 1 in the instant that hit the wall/platform/obstacle, else == 0
+    unsigned char *colourmap;
+    //struct entity   *thrower;
+    struct entity *link; // Used to link 2 entities together.
+    struct entity *owner; // Added for "hitenemy" flag so projectile recognizes its owner
+    struct entity *grabbing; // Added for "platform level" layering
+    struct entity *weapent;
+    struct entity *parent; //Its spawner
+    struct entity *subentity; //store the sub entity
+    struct entity *opponent;
+    struct entity *collided_entity;
+    struct entity *custom_target; // target forced by modder via script
+    struct entity *lasthit;
+    struct entity *hithead; // when a player jumps and hits head on the bottom of a platform
+    struct entity *landed_on_platform;
+    s_bind binding;
+    int escapecount; // For escapehits
+    s_rush rush;    //Rush combo display.
+    int lifespancountdown; // life span count down
 
-	// Boolean flags.
-    bool					arrowon;							// Display arrow icon (parrow<player>) ~~
-	bool					blink;								// Toggle flash effect. ~~
-	bool					boss;								// I'm the BOSS playa, I'm the reason that you lost! ~~
-	bool					blocking;							// In blocking state. ~~
-	bool					charging;							// Charging MP. Gain according to chargerate. ~~
-	bool					dead;								// He's dead Jim. ~~
-	bool					deduct_ammo;						// Check for ammo count? ~~
-	bool					die_on_landing;						// Flag for death by damageonlanding (active if self->health <= 0). ~~
-	bool					drop;								// Knocked down. Remains true until rising. ~~
-	bool					exists;								// flag to determine if it is a valid entity. ~~
-	bool					falling;							// Knocked down and haven't landed. ~~
-	bool					frozen;								// Frozen in place. ~~
-	bool					getting;							// Picking up item. ~~
-	bool					grabwalking;						// Walking while grappling. ~~
-	bool					hitwall;							// Blcoked by wall/platform/obstacle. ~~
-	bool					idling;								// ~~
-	bool					inbackpain;							// Playing back pain/fall/rise/riseattack/die animation. ~~
-	bool					inpain;								// Hit and block stun. ~~
-	bool					jumping;							// ~~
-	bool					noaicontrol;						// No AI or automated control. ~~
-	bool					running;							// ~~
-	bool					tocost;								// Cost life on hit with special. ~~
-	bool					turning;							// Turning around. ~~
-	bool					walking;							// ~~
-	
-	// Signed char.
-	char					name[MAX_NAME_LEN];					// Display name (alias). ~~	
-       
-    // Function pointers.
-	void					(*takeaction)();					// Take an action (lie, attack, etc.). ~~
-	void					(*think)();							// Entity thinks. ~~
-    
-	int						(*takedamage)(struct entity *, s_collision_attack *, int);	// Entity applies damage to itself when hit, thrown, and so on. ~~
-    int						(*trymove)(float, float);			// Attempts to move. Container for most movement logic. ~~
+    //------------- copy them from model to avoid global effect -------------
+    s_defense *defense;
+    float *offense_factors;
+
+    int idlemode;
+    int walkmode;
+
+    int sortid; // id for sprite queue sort
+    Varlist *varlist;
+    s_drawmethod drawmethod;
+    s_scripts *scripts;
 } entity;
 
 
@@ -2890,6 +2691,7 @@ typedef struct
     unsigned bossmusic_offset;
     int numpalettes;
     unsigned char (*palettes)[1024];//dynamic palettes
+    unsigned char *(*blendings)[MAX_BLENDINGS];//blending tables
     int settime; // Set time limit per level
     int notime; // Used to specify if the time is displayed 1 = no, else yes
     int noreset; // If set, clock will not reset when players spawn/die
@@ -2944,72 +2746,35 @@ typedef struct ArgList
 
 int is_frozen(entity *e);
 void unfrozen(entity *e);
-void    adjust_bind(entity *e);
-float	binding_position(float position_default, float position_target, int offset, e_bind_mode positioning);
-int     check_bind_override(entity *ent, e_bind_override overriding);
-
-// Linked lists
-void	free_recursive_list(s_damage_recursive * head);
-
-// Blocking logic.
-int     check_blocking_decision(entity *ent);
-int     check_blocking_eligible(entity *ent, entity *other, s_collision_attack *attack);
-int     check_blocking_master(entity *ent, entity *other, s_collision_attack *attack);
-int     check_blocking_rules(entity *ent);
-int     check_blocking_pain(entity *ent, s_collision_attack *attack);
-void	do_active_block(entity *ent);
-void	do_passive_block(entity *ent, entity *other, s_collision_attack *attack);
-void    set_blocking_action(entity *ent, entity *other, s_collision_attack *attack);
-void    set_blocking_animation(entity *ent, s_collision_attack *attack);
-
-// Select player models.
-int		find_selectable_model_count				();
-int		is_model_cache_index_selectable			(int cache_index);
-int		is_model_selectable						(s_model *model);
-s_model *nextplayermodel						(s_model *current);
-s_model *nextplayermodeln						(s_model *current, int player_index);
-s_model *prevplayermodel						(s_model *current);
-s_model *prevplayermodeln						(s_model *current, int player_index);
-
-// Select player maps (colors).
-int		is_map_hidden							(s_model *model, int map_index);
-int		nextcolourmap							(s_model *model, int map_index);
-int		nextcolourmapn							(s_model *model, int map_index, int player_index);
-int		prevcolourmap							(s_model *model, int map_index);
-int		prevcolourmapn							(s_model *model, int map_index, int player_index);	
-
-int     buffer_pakfile							(char *filename, char **pbuffer, size_t *psize);
-size_t  ParseArgs								(ArgList *list, char *input, char *output);
-int     getsyspropertybyindex					(ScriptVariant *var, int index);
-int     changesyspropertybyindex				(int index, ScriptVariant *value);
-e_direction	direction_adjustment				(e_direction direction_default, e_direction direction_target, e_direction_adjust adjustment);
-int     load_script								(Script *script, char *path);
+int     buffer_pakfile(char *filename, char **pbuffer, size_t *psize);
+size_t  ParseArgs(ArgList *list, char *input, char *output);
+int     getsyspropertybyindex(ScriptVariant *var, int index);
+int     changesyspropertybyindex(int index, ScriptVariant *value);
+int     load_script(Script *script, char *path);
 void    init_scripts();
 void    load_scripts();
-void    execute_animation_script                (entity *ent);
-void    execute_takedamage_script               (entity *ent, entity *other, s_collision_attack *attack);
-void    execute_on_bind_update_other_to_self    (entity *ent, entity *other, s_bind *bind);
-void    execute_on_bind_update_self_to_other    (entity *ent, entity *other, s_bind *bind);
-void    execute_ondeath_script                  (entity *ent, entity *other, s_collision_attack *attack);
-void    execute_onkill_script                   (entity *ent);
-void    execute_onpain_script                   (entity *ent, int iType, int iReset);
-void    execute_onfall_script                   (entity *ent, entity *other, s_collision_attack *attack);
-void    execute_inhole_script                   (entity *ent, s_terrain *hole, int index);
-void    execute_onblocks_script                 (entity *ent);
-void    execute_onblockw_script                 (entity *ent, s_terrain *wall, int index, e_plane plane);
-void    execute_onblockp_script                 (entity *ent, int plane, entity *platform);
-void    execute_onblocko_script                 (entity *ent, int plane, entity *other);
-void    execute_onblockz_script                 (entity *ent);
-void    execute_onblocka_script                 (entity *ent, entity *other);
-void    execute_onmovex_script                  (entity *ent);
-void    execute_onmovez_script                  (entity *ent);
-void    execute_onmovea_script                  (entity *ent);
-void    execute_didblock_script                 (entity *ent, entity *other, s_collision_attack *attack);
-void    execute_ondoattack_script               (entity *ent, entity *other, s_collision_attack *attack, e_exchange which, int attack_id);
-void    execute_updateentity_script             (entity *ent);
-void    execute_think_script                    (entity *ent);
-void    execute_didhit_script                   (entity *ent, entity *other, s_collision_attack *attack, int blocked);
-void    execute_onspawn_script                  (entity *ent);
+void    execute_animation_script    (entity *ent);
+void    execute_takedamage_script   (entity *ent, entity *other, s_collision_attack *attack);
+void    execute_ondeath_script      (entity *ent, entity *other, s_collision_attack *attack);
+void    execute_onkill_script       (entity *ent);
+void    execute_onpain_script       (entity *ent, int iType, int iReset);
+void    execute_onfall_script       (entity *ent, entity *other, s_collision_attack *attack);
+void    execute_inhole_script       (entity *ent, s_terrain *hole, int index);
+void    execute_onblocks_script     (entity *ent);
+void    execute_onblockw_script     (entity *ent, s_terrain *wall, int index, e_plane plane);
+void    execute_onblockp_script     (entity *ent, int plane, entity *platform);
+void    execute_onblocko_script     (entity *ent, int plane, entity *other);
+void    execute_onblockz_script     (entity *ent);
+void    execute_onblocka_script     (entity *ent, entity *other);
+void    execute_onmovex_script      (entity *ent);
+void    execute_onmovez_script      (entity *ent);
+void    execute_onmovea_script      (entity *ent);
+void    execute_didblock_script     (entity *ent, entity *other, s_collision_attack *attack);
+void    execute_ondoattack_script   (entity *ent, entity *other, s_collision_attack *attack, e_exchange which, int attack_id);
+void    execute_updateentity_script (entity *ent);
+void    execute_think_script        (entity *ent);
+void    execute_didhit_script       (entity *ent, entity *other, s_collision_attack *attack, int blocked);
+void    execute_onspawn_script      (entity *ent);
 void    clearbuttonss(int player);
 void    clearsettings(void);
 void    savesettings(void);
@@ -3039,7 +2804,7 @@ void standard_palette();
 void change_system_palette(int palindex);
 void unload_background();
 void lifebar_colors();
-void load_background(char *filename);
+void load_background(char *filename, int createtables);
 void unload_texture();
 void load_texture(char *filename);
 void freepanels();
@@ -3057,8 +2822,6 @@ s_model *nextplayermodel(s_model *current);
 s_model *prevplayermodel(s_model *current);
 void free_anim(s_anim *anim);
 void free_models();
-int free_model();
-void cache_model_sprites();
 s_anim                  *alloc_anim();
 s_collision_attack      *collision_alloc_attack_instance(s_collision_attack* properties);
 s_collision_attack      **collision_alloc_attack_list();
@@ -3150,8 +2913,7 @@ void ent_summon_ent(entity *ent);
 void ent_set_anim(entity *ent, int aninum, int resetable);
 void ent_set_colourmap(entity *ent, unsigned int which);
 void ent_set_model(entity *ent, char *modelname, int syncAnim);
-entity *spawn_attack_flash(entity *ent, s_collision_attack *attack, int attack_flash, int model_flash);
-entity *spawn(float x, float z, float a, e_direction direction, char *name, int index, s_model *model);
+entity *spawn(float x, float z, float a, int direction, char *name, int index, s_model *model);
 void ent_unlink(entity *e);
 void ents_link(entity *e1, entity *e2);
 void kill_entity(entity *victim);
@@ -3164,7 +2926,6 @@ void sort_invert_by_parent(entity *ent, entity* parent);
 
 int checkgrab(entity *other, s_collision_attack *attack);
 void checkdamageeffects(s_collision_attack *attack);
-void check_damage_recursive(entity *ent, entity *other, s_collision_attack *attack);
 void checkdamagedrop(s_collision_attack *attack);
 void checkmpadd();
 void checkhitscore(entity *other, s_collision_attack *attack);
@@ -3285,7 +3046,7 @@ int common_try_wandercompletely(int dox, int doz);
 int common_try_wander(entity *target, int dox, int doz);
 void common_pickupitem(entity *other);
 int common_backwalk_anim(entity *ent);
-void draw_properties_entity(entity *entity, int offset_z, int color, s_drawmethod *drawmethod);
+void draw_position_entity(entity *entity, int offset_z, int color, s_drawmethod *drawmethod);
 void draw_box_on_entity(entity *entity, int pos_x, int pos_y, int pos_z, int size_w, int size_h, int offset_z, int color, s_drawmethod *drawmethod);
 void draw_visual_debug();
 int bomb_move(void);

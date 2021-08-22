@@ -691,7 +691,7 @@ unsigned encodesprite(
     s_bitmap *bitmap, s_sprite *dest
 )
 {
-    int x, x0, y, w, h, xoffset, origwidth;
+    int x, x0, y, w, h;
     unsigned char *data;
     int *linetab;
     unsigned char *src = bitmap->data;
@@ -702,7 +702,7 @@ unsigned encodesprite(
         dest->magic = sprite_magic;
     }
 
-    if(bitmap->clipped_width <= 0 || bitmap->clipped_height <= 0)
+    if(bitmap->width <= 0 || bitmap->height <= 0)
     {
         // Image is empty (or bad), create an empty sprite
         if(dest)
@@ -719,10 +719,8 @@ unsigned encodesprite(
         return sizeof(s_sprite);
     }
 
-    w = bitmap->clipped_width;
-    h = bitmap->clipped_height;
-    xoffset = bitmap->clipped_x_offset;
-    origwidth = bitmap->width;
+    w = bitmap->width;
+    h = bitmap->height;
 
     if(dest)
     {
@@ -737,10 +735,7 @@ unsigned encodesprite(
     linetab = (int *)(dest->data);
     data = (unsigned char *)(linetab + h);
 
-    src += bitmap->clipped_y_offset * origwidth;
-    src += xoffset;
-
-    for(y = 0; y < h; y++, src += origwidth)
+    for(y = 0; y < h; y++, src += w)
     {
         if(dest)
         {

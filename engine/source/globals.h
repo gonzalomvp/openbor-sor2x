@@ -26,9 +26,9 @@
 
 #define		MAX_BUFFER_LEN		512
 #define		MAX_FILENAME_LEN	256
-#define		MAX_LABEL_LEN		128
+#define		MAX_LABEL_LEN       128
 
-#define		MAX_MODS_NUM		18 //Kratus (13-03-21) decreased the max pak numbers from 100 to 18 to avoid engine "close" bug
+#define MAX_MODS_NUM 100
 
 #ifdef PSP
 #include <stdarg.h>
@@ -53,9 +53,6 @@
 #include <gctypes.h>
 #include <ogc/conf.h>
 #include "wiiport.h"
-// For devkitPPC r29+
-#define stricmp strcasecmp
-#define strnicmp strncasecmp
 #endif
 
 #ifdef VITA
